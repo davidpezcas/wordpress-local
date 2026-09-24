@@ -1,0 +1,94 @@
+name: wp-elementor-local
+
+services:
+
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:-wordpress}
+      MARIADB_USER: ${DB_USER:-wp}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-wp}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  wordpress:
+    image: wordpress:php8.3-apache
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${WP_PORT:-8080}:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${DB_NAME:-wordpress}
+      WORDPRESS_DB_USER: ${DB_USER:-wp}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wp}
+    volumes:
+      # Volumen de Docker (no carpeta de Windows): mucho más rápido y sin
+      # problemas de permisos en Docker Desktop.
+      - wp_data:/var/www/html
+      - ./config/php.ini:/usr/local/etc/php/conf.d/zz-local.ini:ro
+
+  # Contenedor de un solo uso: configura todo con WP-CLI y termina.
+  wpcli:
+    image: wordpress:cli-php8.3
+    user: "33:33"          # mismo usuario (www-data) que Apache
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+      wordpress:
+        condition: service_started
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${DB_NAME:-wordpress}
+      WORDPRESS_DB_USER: ${DB_USER:-wp}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wp}
+      SITE_URL: http://localhost:${WP_PORT:-8080}
+      SITE_TITLE: ${SITE_TITLE:-WP Elementor Local}
+      ADMIN_USER: ${ADMIN_USER:-admin}
+      ADMIN_PASS: ${ADMIN_PASS:-admin}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      WP_LOCALE: ${WP_LOCALE:-es_ES}
+      WP_TIMEZONE: ${WP_TIMEZONE:-America/Bogota}
+      EXTRA_PLUGINS: ${EXTRA_PLUGINS:-wordpress-importer}
+      ENABLE_WOOCOMMERCE: ${ENABLE_WOOCOMMERCE:-false}
+      MAIL_PORT: ${MAIL_PORT:-8025}
+      PMA_PORT: ${PMA_PORT:-8081}
+    volumes:
+      - wp_data:/var/www/html
+      - ./setup.sh:/setup.sh:ro
+    entrypoint: ["sh", "/setup.sh"]
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${PMA_PORT:-8081}:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      UPLOAD_LIMIT: 256M
+
+  # Captura todos los correos que envía WordPress (reemplazo moderno de MailHog)
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "${MAIL_PORT:-8025}:8025"
+
+volumes:
+  db_data:
+  wp_data:

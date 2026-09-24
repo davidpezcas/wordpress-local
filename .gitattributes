@@ -1,0 +1,9 @@
+# Los scripts que corren dentro de Linux (Docker) DEBEN tener finales de línea LF,
+# aunque clones el repo en Windows. Sin esto, setup.sh falla con "\r: command not found".
+* text=auto
+*.sh  text eol=lf
+*.yml text eol=lf
+*.ini text eol=lf
+.env* text eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf

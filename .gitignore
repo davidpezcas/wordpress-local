@@ -1,0 +1,14 @@
+# Configuración local (usa .env.example como plantilla)
+.env
+
+# Exportaciones / respaldos locales
+backups/
+*.sql
+*.log
+
+# SO / IDE
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
