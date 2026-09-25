@@ -128,10 +128,6 @@ Viven en un **volumen de Docker** (`wp_data`), no en una carpeta de Windows. As�
 - **`setup.sh: \r: not found` o `$'\r'`**: el archivo quedó con finales de línea de Windows. El `.gitattributes` del repo lo evita; si editaste el archivo, guárdalo con finales **LF** (en VS Code, esquina inferior derecha: CRLF → LF).
 - **La configuración terminó con error**: revisa `.\wp.ps1 logs`. Suele ser falta de internet al descargar plugins; vuelve a ejecutar `.\wp.ps1 up`.
 
-## Créditos
-
-Basado en la idea de [pedrozopayares/Wordpress-local-para-pruebas-r-pidas-con-docker](https://github.com/pedrozopayares/Wordpress-local-para-pruebas-r-pidas-con-docker), simplificado y enfocado en Elementor.
-
 ## Licencia
 
 MIT
