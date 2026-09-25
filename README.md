@@ -33,11 +33,11 @@ docker compose logs -f wpcli     # espera a ver "¡WordPress listo para pruebas!
 
 ## Accesos
 
-| Servicio        | URL                              | Usuario | Clave   |
-| --------------- | -------------------------------- | ------- | ------- |
-| Sitio           | http://localhost:8080            |         |         |
-| Admin           | http://localhost:8080/wp-admin   | `admin` | `admin` |
-| phpMyAdmin      | http://localhost:8081            | `root`  | `root`  |
+| Servicio          | URL                            | Usuario | Clave   |
+| ----------------- | ------------------------------ | ------- | ------- |
+| Sitio             | http://localhost:8080          |         |         |
+| Admin             | http://localhost:8080/wp-admin | `admin` | `admin` |
+| phpMyAdmin        | http://localhost:8081          | `root`  | `root`  |
 | Correos (Mailpit) | http://localhost:8025          |         |         |
 
 ## Qué queda configurado automáticamente
@@ -67,15 +67,15 @@ docker compose logs -f wpcli     # espera a ver "¡WordPress listo para pruebas!
 
 ## Comandos (Windows)
 
-| Comando                         | Qué hace                                               |
-| ------------------------------- | ------------------------------------------------------ |
-| `.\wp.ps1 up`                   | Levanta todo y abre el navegador                        |
-| `.\wp.ps1 down`                 | Apaga (conserva datos)                                  |
-| `.\wp.ps1 reset`                | Borra todo y reinstala desde cero                       |
-| `.\wp.ps1 logs`                 | Log de la autoconfiguración                             |
-| `.\wp.ps1 status`               | Estado de los contenedores                              |
-| `.\wp.ps1 cli plugin list`      | Ejecuta cualquier comando de WP-CLI                     |
-| `.\wp.ps1 backup`               | Exporta la base de datos a `backups\`                   |
+| Comando                    | Qué hace                              |
+| -------------------------- | ------------------------------------- |
+| `.\wp.ps1 up`              | Levanta todo y abre el navegador      |
+| `.\wp.ps1 down`            | Apaga (conserva datos)                |
+| `.\wp.ps1 reset`           | Borra todo y reinstala desde cero     |
+| `.\wp.ps1 logs`            | Log de la autoconfiguración           |
+| `.\wp.ps1 status`          | Estado de los contenedores            |
+| `.\wp.ps1 cli plugin list` | Ejecuta cualquier comando de WP-CLI   |
+| `.\wp.ps1 backup`          | Exporta la base de datos a `backups\` |
 
 Equivalentes directos con Docker:
 
@@ -105,7 +105,7 @@ Los plugins de `EXTRA_PLUGINS` son slugs de wordpress.org (lo que aparece en la 
 
 Viven en un **volumen de Docker** (`wp_data`), no en una carpeta de Windows. Así el sitio es mucho más rápido y no hay problemas de permisos. Para trabajar con ellos:
 
-- **VS Code**: extensión *Dev Containers* → "Attach to Running Container" → `wordpress`, carpeta `/var/www/html`
+- **VS Code**: extensión _Dev Containers_ → "Attach to Running Container" → `wordpress`, carpeta `/var/www/html`
 - **Copiar un plugin tuyo al sitio**:
   `docker compose cp .\mi-plugin wordpress:/var/www/html/wp-content/plugins/`
   y luego `.\wp.ps1 cli plugin activate mi-plugin`
@@ -114,23 +114,19 @@ Viven en un **volumen de Docker** (`wp_data`), no en una carpeta de Windows. As�
 
 ## Servicios
 
-| Servicio     | Imagen                   | Función                                   |
-| ------------ | ------------------------ | ----------------------------------------- |
-| `db`         | mariadb:11.4             | Base de datos                             |
-| `wordpress`  | wordpress:php8.3-apache  | WordPress (Apache + PHP 8.3)              |
-| `wpcli`      | wordpress:cli-php8.3     | Autoconfiguración con WP-CLI (y termina)  |
-| `phpmyadmin` | phpmyadmin               | Administrador de base de datos            |
-| `mailpit`    | axllent/mailpit          | Bandeja de correos de prueba              |
+| Servicio     | Imagen                  | Función                                  |
+| ------------ | ----------------------- | ---------------------------------------- |
+| `db`         | mariadb:11.4            | Base de datos                            |
+| `wordpress`  | wordpress:php8.3-apache | WordPress (Apache + PHP 8.3)             |
+| `wpcli`      | wordpress:cli-php8.3    | Autoconfiguración con WP-CLI (y termina) |
+| `phpmyadmin` | phpmyadmin              | Administrador de base de datos           |
+| `mailpit`    | axllent/mailpit         | Bandeja de correos de prueba             |
 
 ## Problemas comunes
 
 - **"port is already allocated"**: otro programa usa el puerto. Cambia `WP_PORT`, `PMA_PORT` o `MAIL_PORT` en `.env`.
 - **`setup.sh: \r: not found` o `$'\r'`**: el archivo quedó con finales de línea de Windows. El `.gitattributes` del repo lo evita; si editaste el archivo, guárdalo con finales **LF** (en VS Code, esquina inferior derecha: CRLF → LF).
 - **La configuración terminó con error**: revisa `.\wp.ps1 logs`. Suele ser falta de internet al descargar plugins; vuelve a ejecutar `.\wp.ps1 up`.
-
-## Créditos
-
-Basado en la idea de [pedrozopayares/Wordpress-local-para-pruebas-r-pidas-con-docker](https://github.com/pedrozopayares/Wordpress-local-para-pruebas-r-pidas-con-docker), simplificado y enfocado en Elementor.
 
 ## Licencia
 

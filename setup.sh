@@ -1,8 +1,8 @@
 #!/bin/sh
 # ═══════════════════════════════════════════════════════════════
-#  Autoconfiguración de WordPress + Elementor con WP-CLI
+#  Autoconfiguracion de WordPress + Elementor con WP-CLI
 #  Se ejecuta en cada `docker compose up`. Es idempotente:
-#  si algo ya existe, lo deja como está.
+#  si algo ya existe, lo deja como esta.
 # ═══════════════════════════════════════════════════════════════
 
 WP="php -d memory_limit=512M $(command -v wp) --path=/var/www/html"
@@ -11,31 +11,31 @@ W=/var/www/html
 say() { printf '%s\n' "$*"; }
 
 # ── 1. Esperar a que el contenedor de WordPress copie los archivos ──
-say "⏳ Esperando archivos de WordPress..."
+say "Esperando archivos de WordPress..."
 i=0
 until [ -f "$W/wp-config.php" ] && [ -f "$W/wp-includes/version.php" ]; do
   i=$((i+1)); [ $i -ge 60 ] && { say "❌ WordPress no generó sus archivos"; exit 1; }
   sleep 2
 done
 
-say "⏳ Esperando base de datos..."
+say "Esperando base de datos..."
 i=0
 until $WP db check >/dev/null 2>&1; do
   i=$((i+1)); [ $i -ge 30 ] && { say "❌ Sin conexión a la base de datos"; exit 1; }
   sleep 2
 done
-say "✅ Base de datos lista"
+say "Base de datos lista"
 
 # ── 2. Instalar WordPress ──────────────────────────────────────
 if ! $WP core is-installed 2>/dev/null; then
-  say "🚀 Instalando WordPress..."
+  say "Instalando WordPress..."
   $WP core install \
     --url="$SITE_URL" --title="$SITE_TITLE" \
     --admin_user="$ADMIN_USER" --admin_password="$ADMIN_PASS" \
     --admin_email="$ADMIN_EMAIL" --skip-email
   FIRST_RUN=1
 else
-  say "✅ WordPress ya estaba instalado"
+  say "WordPress ya estaba instalado"
   FIRST_RUN=0
 fi
 
@@ -44,10 +44,10 @@ $WP option update home    "$SITE_URL" >/dev/null
 $WP option update siteurl "$SITE_URL" >/dev/null
 
 # ── 3. Idioma y ajustes generales ──────────────────────────────
-say "🌐 Idioma: $WP_LOCALE"
+say "Idioma: $WP_LOCALE"
 $WP language core install "$WP_LOCALE" --activate >/dev/null 2>&1 || true
 
-say "⚙️  Ajustes del sitio..."
+say "Ajustes del sitio..."
 $WP option update blogname        "$SITE_TITLE"                >/dev/null
 $WP option update blogdescription "Entorno local de pruebas"   >/dev/null
 $WP option update timezone_string "$WP_TIMEZONE"               >/dev/null
@@ -68,23 +68,22 @@ $WP config set WP_MEMORY_LIMIT   512M        >/dev/null
 install_plugin() {
   if $WP plugin is-installed "$1" 2>/dev/null; then
     $WP plugin activate "$1" >/dev/null 2>&1 || true
-    say "  ✅ $1"
+    say "$1"
   else
-    say "  📦 Instalando $1..."
+    say "  Instalando $1..."
     $WP plugin install "$1" --activate >/dev/null || say "  ⚠️  No se pudo instalar $1"
   fi
 }
 
-say "🎨 Tema Hello Elementor..."
+say "Tema Hello Elementor..."
 if ! $WP theme is-installed hello-elementor; then
   $WP theme install hello-elementor --activate >/dev/null
 else
   $WP theme activate hello-elementor >/dev/null 2>&1 || true
 fi
 
-say "🔌 Plugins..."
+say "Plugins..."
 install_plugin elementor
-install_plugin query-monitor
 for p in $EXTRA_PLUGINS; do install_plugin "$p"; done
 if [ "$ENABLE_WOOCOMMERCE" = "true" ]; then install_plugin woocommerce; fi
 
@@ -93,7 +92,7 @@ $WP language plugin install --all "$WP_LOCALE" >/dev/null 2>&1 || true
 $WP language theme  install --all "$WP_LOCALE" >/dev/null 2>&1 || true
 
 # ── 5. Configurar Elementor (sin asistentes ni avisos) ─────────
-say "🧩 Configurando Elementor..."
+say "Configurando Elementor..."
 $WP option update elementor_onboarded          1    >/dev/null
 $WP option update elementor_tracker_notice     1    >/dev/null
 $WP option update elementor_allow_tracking     no   >/dev/null
@@ -106,7 +105,7 @@ $WP option update hello_theme_settings_hide_admin_notice 1 >/dev/null 2>&1 || tr
 # ── 6. Limpiar contenido por defecto ───────────────────────────
 if [ "$FIRST_RUN" = "1" ]; then
   say "🧹 Eliminando contenido de ejemplo..."
-  $WP post delete 1 2 --force >/dev/null 2>&1 || true          # "Hola mundo" y "Página de ejemplo"
+  $WP post delete 1 2 --force >/dev/null 2>&1 || true          # "Hola mundo" y "Pagina de ejemplo"
   $WP comment delete 1 --force >/dev/null 2>&1 || true
   $WP plugin delete akismet hello >/dev/null 2>&1 || true
   for t in $($WP theme list --status=inactive --field=name 2>/dev/null); do
@@ -119,7 +118,7 @@ page_id() { $WP post list --post_type=page --name="$1" --field=ID --posts_per_pa
 
 HOME_ID=$(page_id inicio)
 if [ -z "$HOME_ID" ]; then
-  say "📄 Creando página de inicio con Elementor..."
+  say "Creando página de inicio con Elementor..."
   HOME_ID=$($WP post create --post_type=page --post_title="Inicio" --post_name="inicio" \
             --post_status=publish --porcelain)
 
@@ -229,12 +228,12 @@ $WP cache flush         >/dev/null 2>&1 || true
 cat <<EOF
 
 ════════════════════════════════════════════════════════
-  ✅ ¡WordPress listo para pruebas!
+  ¡WordPress listo para pruebas!
 ════════════════════════════════════════════════════════
-  🌐 Sitio:       $SITE_URL
-  🔐 Admin:       $SITE_URL/wp-admin
-  🗃️  phpMyAdmin:  http://localhost:$PMA_PORT
-  📧 Correos:     http://localhost:$MAIL_PORT
+  Sitio:       $SITE_URL
+  Admin:       $SITE_URL/wp-admin
+  phpMyAdmin:  http://localhost:$PMA_PORT
+  Correos:     http://localhost:$MAIL_PORT
 
   Usuario: $ADMIN_USER    Clave: $ADMIN_PASS
 ════════════════════════════════════════════════════════

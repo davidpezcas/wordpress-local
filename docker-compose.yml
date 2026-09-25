@@ -1,7 +1,6 @@
 name: wp-elementor-local
 
 services:
-
   db:
     image: mariadb:11.4
     restart: unless-stopped
@@ -40,7 +39,7 @@ services:
   # Contenedor de un solo uso: configura todo con WP-CLI y termina.
   wpcli:
     image: wordpress:cli-php8.3
-    user: "33:33"          # mismo usuario (www-data) que Apache
+    user: "33:33" # mismo usuario (www-data) que Apache
     restart: "no"
     depends_on:
       db:
@@ -52,6 +51,7 @@ services:
       WORDPRESS_DB_NAME: ${DB_NAME:-wordpress}
       WORDPRESS_DB_USER: ${DB_USER:-wp}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wp}
+      WP_CLI_CACHE_DIR: /tmp/wp-cli-cache
       SITE_URL: http://localhost:${WP_PORT:-8080}
       SITE_TITLE: ${SITE_TITLE:-WP Elementor Local}
       ADMIN_USER: ${ADMIN_USER:-admin}
@@ -59,7 +59,7 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
       WP_LOCALE: ${WP_LOCALE:-es_ES}
       WP_TIMEZONE: ${WP_TIMEZONE:-America/Bogota}
-      EXTRA_PLUGINS: ${EXTRA_PLUGINS:-wordpress-importer}
+      EXTRA_PLUGINS: ${EXTRA_PLUGINS:-}
       ENABLE_WOOCOMMERCE: ${ENABLE_WOOCOMMERCE:-false}
       MAIL_PORT: ${MAIL_PORT:-8025}
       PMA_PORT: ${PMA_PORT:-8081}
